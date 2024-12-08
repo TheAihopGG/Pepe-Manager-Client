@@ -12,6 +12,10 @@ Pepe manager is a program, it is like an apt, pacman. This project to practice p
 
 (soon)
 
+# Technologies
+
+- [Python 3.12](https://www.python.org/)
+
 # Credits
 
 - [theaihopgg](https://github.com/TheAihopGG) - the realization
