@@ -11,6 +11,8 @@ def execute_args(args: ProgramArgs):
     match action.lower():
         case ActionsList.LIST:
             actions[ActionsList.LIST]()
+        case ActionsList.UPDATE_PACKAGES:
+            actions[ActionsList.UPDATE_PACKAGES]()
 
 def main():
     # parse args
@@ -21,5 +23,5 @@ def main():
     parser.add_argument('action')
     execute_args(parser.parse_args())
 
-create_config()
+init_config()
 main()
