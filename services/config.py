@@ -10,9 +10,16 @@ DEFAULT_CONFIG = {
     "packages":[]
 }
 
+class TypedPackage(TypedDict):
+    id: int
+    name: str
+    author: str
+    version: str
+    url: str
+
 class TypedConfig(TypedDict):
     packages_dir_path: str
-    packages: list[dict]
+    packages: list[TypedPackage]
 
 
 def init_config(config_path: str = CONFIG_PATH):

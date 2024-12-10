@@ -10,7 +10,11 @@ class TypedPackage(TypedDict):
     version: str
     url: str
 
-def is_package(package_dir: str, config: TypedConfig) -> (None | TypedPackage):
+
+def is_package(
+    package_dir: str,
+    config: TypedConfig
+) -> (None | TypedPackage):
     package_config_path = f'{config['packages_dir_path']}/{package_dir}/config.json'
     if exists(package_config_path):
         package_config: TypedPackage = json.load(open(package_config_path))
@@ -18,3 +22,11 @@ def is_package(package_dir: str, config: TypedConfig) -> (None | TypedPackage):
             return package_config
     else:
         return None
+
+
+def is_downloaded_package(
+    package_name: str,
+    package_version: str,
+    config: TypedConfig
+) -> bool:
+    return package_name in (package_config['name'] for package_config in config['packages']) and package_version in (package_config['version'] for package_config in config['packages']) if config['packages'] else False
