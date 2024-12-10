@@ -13,7 +13,7 @@ DEFAULT_CONFIG = {
 def init_config(config_path: str = CONFIG_PATH):
     if not exists(config_path):
         with open(config_path, 'w') as config_file:
-            json.dump(config_file, DEFAULT_CONFIG)
+            json.dump(DEFAULT_CONFIG, config_file)
 
 
 def load_config(config_path: str = CONFIG_PATH) -> TypedConfig:
