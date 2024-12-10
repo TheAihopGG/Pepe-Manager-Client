@@ -22,6 +22,7 @@ class ActionsList(Enum):
     download = 'download'
     remove = 'remove'
     set = 'set'
+    show = 'show'
 
 
 class Actions:
@@ -98,6 +99,7 @@ class Actions:
         for [index, package] in enumerate(config['packages']):
             if package['name'] == package_name and package['version'] == package_version:
                 del config['packages'][index]
+                break
         edit_config('packages', [None if package['name'] == package_name and package['version'] else package for package in config['packages']])
         
         rich.print(f'Successfully removed {package_name}-{package_version}')
@@ -106,3 +108,12 @@ class Actions:
     def set(option: str, value: str):
         """Edits option in config"""
         edit_config(option, value)
+    
+    @staticmethod
+    def show(package_name: str, package_version: str):
+        """Shows package info"""
+        for package in config['packages']:
+            if package['name'] == package_name and package['version'] == package_version:
+                for [key, value] in package.items():
+                    rich.print(f'{key}: {value}')
+                break

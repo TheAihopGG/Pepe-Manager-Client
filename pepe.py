@@ -40,7 +40,7 @@ def execute_args(args: ProgramArgs):
                     package_config: dict[TypedPackage] = json.loads(response.content.decode())['package']
                     Actions.download(package_config=package_config)
                 else:
-                    rich.print(response.text)
+                    rich.print(response.content['detail'])
             elif not args.package_name:
                 rich.print('--package-name is required')
             elif not args.package_version:
@@ -68,6 +68,17 @@ def execute_args(args: ProgramArgs):
                 rich.print('--option is required')
             elif not args.value:
                 rich.print('--value is required')
+        
+        case ActionsList.show.value:
+            if args.package_name and args.package_version:
+                if is_downloaded_package(args.package_name, args.package_version, config):
+                    Actions.show(args.package_name, args.package_version)
+                else:
+                    rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
+            elif not args.option:
+                rich.print('--package-name is required')
+            elif not args.value:
+                rich.print('--package-version is required')
 
 def parse_args() -> ProgramArgs:
     """Parse args with using argparse and return TypedProgramArgs"""
