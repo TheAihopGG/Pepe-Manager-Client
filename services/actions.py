@@ -7,8 +7,6 @@ import json
 import functools
 import requests
 from urllib.parse import urlparse
-from os.path import exists
-from typing import Callable
 from logging import *
 from data.settings import *
 from services.config import *

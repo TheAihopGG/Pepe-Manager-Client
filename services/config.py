@@ -1,7 +1,5 @@
-import rich
 import json
-import functools
-from typing import TypedDict, Callable, Any
+from typing import TypedDict, Any
 from os.path import exists
 from data.settings import CONFIG_PATH
 
@@ -10,7 +8,7 @@ DEFAULT_CONFIG = {
     "packages":[]
 }
 
-class TypedPackage(TypedDict):
+class TypedPackage(TypedDict): # 
     id: int
     name: str
     author: str
