@@ -9,9 +9,12 @@ from services.config import *
 from services.actions import ActionsList, Actions
 from services.package import TypedPackage, is_downloaded_package
 
-config = load_config()
+config = load_config() # config contains such user vars are like packages, packages_dir_path 
+
+__doc__ = """Contains main functions"""
 
 class ProgramArgs(Namespace):
+    """Contains possible fields of `parse_args` response"""
     action: str
     package_name: str | None
     package_version: str | None

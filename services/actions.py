@@ -11,6 +11,8 @@ from services.config import *
 from services.typed_dicts import TypedPackage
 from services.package import is_package
 
+__doc__ = """Contains actions' tools and vars"""
+
 config = load_config()
 
 class ActionsList(Enum):
@@ -56,7 +58,7 @@ class Actions:
 
         rich.print(f'Downloading package: {package_config['name']}{package_config['version']} by @{package_config['author']}')
         rich.print(f'Requesting to {urlparse(package_config['url']).hostname}')
-        
+        # download package
         try:
             response = requests.get(package_config['url'])
         except requests.RequestException as error:
@@ -76,6 +78,7 @@ class Actions:
                         packed_package_file.extractall(packages_dir_path)
                         os.remove(f'{packages_dir_path}/{package_config['name']}{package_config['version']}.tar.gz')
                         rich.print(f'Successfully downloaded {package_config['name']}{package_config['version']}')
+                        # add package to config
                         edit_config('packages', config['packages']+[package_config])
                     case _:
                         rich.print(f'Unsupported package file extension: {package_extension}')
