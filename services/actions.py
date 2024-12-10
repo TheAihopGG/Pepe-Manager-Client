@@ -1,10 +1,7 @@
 import tarfile
 import shutil
-import io
 import os
 import rich
-import json
-import functools
 import requests
 from urllib.parse import urlparse
 from logging import *
