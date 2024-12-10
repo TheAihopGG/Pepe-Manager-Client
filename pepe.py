@@ -13,6 +13,10 @@ config = load_config()
 
 class ProgramArgs(Namespace):
     action: str
+    package_name: str | None
+    package_version: str | None
+    option: str | None
+    value: str | None
 
 
 def execute_args(args: ProgramArgs):
@@ -35,9 +39,9 @@ def execute_args(args: ProgramArgs):
                 else:
                     rich.print(response.text)
             elif not args.package_name:
-                rich.print('You must specify parameter: --package-name')
+                rich.print('--package-name is required')
             elif not args.package_version:
-                rich.print('You must specify parameter: --package-version')
+                rich.print('--package-version is required')
         
         case ActionsList.remove.value:
             Actions.update_packages()
@@ -47,9 +51,20 @@ def execute_args(args: ProgramArgs):
                 else:
                     rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
             elif not args.package_name:
-                rich.print('You must specify parameter: --package-name')
+                rich.print('--package-name is required')
             elif not args.package_version:
-                rich.print('You must specify parameter: --package-version')
+                rich.print('--package-version is required')
+        
+        case ActionsList.set.value:
+            if args.option and args.value:
+                if args.option in DEFAULT_CONFIG:
+                    Actions.set(args.option, args.value)
+                else:
+                    rich.print(f'Unknown option {args.option}')
+            elif not args.option:
+                rich.print('--option is required')
+            elif not args.value:
+                rich.print('--value is required')
 
 def parse_args() -> ProgramArgs:
     """Parse args with using argparse and return TypedProgramArgs"""
@@ -61,6 +76,8 @@ def parse_args() -> ProgramArgs:
     parser.add_argument('action') # it is like download, list, remove...
     parser.add_argument('--package-name', '-pn') # package name necessary for download, show and remove commands
     parser.add_argument('--package-version', '-pv') # package version is necessary for download, show and remove commands
+    parser.add_argument('--option', '-op') # option is necessary for set command
+    parser.add_argument('--value', '-v') # value is necessary for set command
     return parser.parse_args()
 
 # init config.json

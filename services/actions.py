@@ -14,11 +14,12 @@ from services.package import is_package
 config = load_config()
 
 class ActionsList(Enum):
-    """Class with all actions"""
+    """Class with actions names"""
     list = 'list'
     update_packages = 'update-packages'
     download = 'download'
     remove = 'remove'
+    set = 'set'
 
 
 class Actions:
@@ -97,3 +98,8 @@ class Actions:
         edit_config('packages', [None if package['name'] == package_name and package['version'] else package for package in config['packages']])
         
         rich.print(f'Successfully removed {package_name}-{package_version}')
+    
+    @staticmethod
+    def set(option: str, value: str):
+        """Edits option in config"""
+        edit_config(option, value)
