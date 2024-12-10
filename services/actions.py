@@ -30,8 +30,6 @@ class Actions:
     @staticmethod
     def list():
         """Shows downloaded packages"""
-        global config
-        config = load_config()
         rich.print('Packages list:')
         if packages := config['packages']:
             for package in packages:
@@ -42,9 +40,7 @@ class Actions:
     @staticmethod
     def update_packages():
         """Updates config['packages']"""
-        global config
-        config = load_config()
-        edit_config('packages', [is_package(package_dir, config) for package_dir in os.listdir(config['packages_dir_path'])])
+        edit_config('packages', [is_package(package_dir, config['packages_dir_path']) for package_dir in os.listdir(config['packages_dir_path'])])
         rich.print('Packages have updated')
     
     @staticmethod
@@ -86,22 +82,22 @@ class Actions:
                 rich.print(response.text)
 
     @staticmethod
-    def remove(package_config: TypedPackage):
+    def remove(remove_package_config: TypedPackage):
         """Removes package in config['packages_dir_path']"""
         # remove package
-        rich.print(f'Removing: {package_config['name']}-{package_config['version']}')
+        rich.print(f'Removing: {remove_package_config['name']}-{remove_package_config['version']}')
         for package_dir in os.listdir(config['packages_dir_path']):
-            package: TypedPackage = is_package(package_dir, config)
-            if package['id'] == package_config['id']:
-                shutil.rmtree(f'{config['packages_dir_path']}/{package_dir}')
+            if package_config := is_package(package_dir, config['packages_dir_path']):
+                if package_config['id'] == remove_package_config['id']:
+                    shutil.rmtree(f'{config['packages_dir_path']}/{package_dir}')
         # remove package from config
-        for [index, package] in enumerate(config['packages']):
-            if package['id'] == package_config['id']:
+        for [index, package_config] in enumerate(config['packages']):
+            if package_config['id'] == remove_package_config['id']:
                 del config['packages'][index]
                 break
         edit_config('packages', config['packages'])
         
-        rich.print(f'Successfully removed {package_config['name']}-{package_config['version']}')
+        rich.print(f'Successfully removed {remove_package_config['name']}-{remove_package_config['version']}')
     
     @staticmethod
     def set(option: str, value: str):
@@ -111,9 +107,5 @@ class Actions:
     @staticmethod
     def show(package_config: TypedPackage):
         """Shows package info"""
-        for package in config['packages']:
-            if package_config['id'] == package['id']:
-                rich.print('Package config')
-                for [key, value] in package.items():
-                    rich.print(f'{key}: {value}')
-                break
+        for [key, value] in package_config.items():
+            rich.print(f'{key}: {value}')
