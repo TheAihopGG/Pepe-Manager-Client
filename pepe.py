@@ -1,18 +1,22 @@
 # -*- encoding: utf-8 -*-
-import argparse
 import requests
 import json
 import rich
 from sys import argv
+from argparse import ArgumentParser, Namespace
 from data.settings import *
 from services.config import *
 from services.actions import ActionsList, Actions
-from services.args import ProgramArgs
 from services.package import TypedPackage, is_downloaded_package
 
 config = load_config()
 
+class ProgramArgs(Namespace):
+    action: str
+
+
 def execute_args(args: ProgramArgs):
+    """Invokes an action with necessary parameters"""
     action = args.action
     match action.lower():
         case ActionsList.list.value:
@@ -47,18 +51,19 @@ def execute_args(args: ProgramArgs):
             elif not args.package_version:
                 rich.print('You must specify parameter: --package-version')
 
-
-def main():
-    # parse args
-    parser = argparse.ArgumentParser(
+def parse_args() -> ProgramArgs:
+    """Parse args with using argparse and return TypedProgramArgs"""
+    parser = ArgumentParser(
         prog=f'{PROG_NAME} {PROG_VERSION}',
         description=PROG_DESCRIPTION
     )
-    parser.add_argument('action')
-    parser.add_argument('--package-name', '-pn')
-    parser.add_argument('--package-version', '-pv')
+    # add arguments
+    parser.add_argument('action') # it is like download, list, remove...
+    parser.add_argument('--package-name', '-pn') # package name necessary for download, show and remove commands
+    parser.add_argument('--package-version', '-pv') # package version is necessary for download, show and remove commands
+    return parser.parse_args()
 
-    execute_args(parser.parse_args())
-
+# init config.json
 init_config()
-main()
+# execute command
+execute_args(parse_args())
