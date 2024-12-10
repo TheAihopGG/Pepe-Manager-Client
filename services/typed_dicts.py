@@ -9,6 +9,10 @@ class TypedPackage(TypedDict):
     version: str
     url: str
 
+class TypedAPIResponse(TypedDict):
+    package: TypedPackage
+    packages: list[TypedPackage]
+    detail: str
 
 class TypedConfig(TypedDict):
     packages_dir_path: str
