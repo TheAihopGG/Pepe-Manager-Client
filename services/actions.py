@@ -3,6 +3,7 @@ import shutil
 import os
 import rich
 import requests
+from enum import Enum
 from urllib.parse import urlparse
 from logging import *
 from data.settings import *
@@ -12,12 +13,12 @@ from services.package import is_package
 
 config = load_config()
 
-class ActionsList:
+class ActionsList(Enum):
     """Class with all actions"""
-    LIST = 'list'
-    UPDATE_PACKAGES = 'update-packages'
-    DOWNLOAD = 'download'
-    REMOVE = 'remove'
+    list = 'list'
+    update_packages = 'update-packages'
+    download = 'download'
+    remove = 'remove'
 
 
 class Actions:

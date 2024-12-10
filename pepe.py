@@ -2,6 +2,7 @@
 import argparse
 import requests
 import json
+import rich
 from sys import argv
 from data.settings import *
 from services.config import *
@@ -14,15 +15,14 @@ config = load_config()
 def execute_args(args: ProgramArgs):
     action = args.action
     match action.lower():
-        case ActionsList.LIST:
-            #Actions.update_packages()
+        case ActionsList.list.value:
+            Actions.update_packages()
             Actions.list()
 
-        case ActionsList.UPDATE_PACKAGES:
+        case ActionsList.update_packages.value:
             Actions.update_packages()
 
-        case ActionsList.DOWNLOAD:
-            #Actions.update_packages()
+        case ActionsList.download.value:
             if args.package_name and args.package_version:
                 response = requests.post(f'{API_URL}api/package/?name={args.package_name}&version={args.package_version}')
                 if response.ok:
@@ -35,7 +35,7 @@ def execute_args(args: ProgramArgs):
             elif not args.package_version:
                 rich.print('You must specify parameter: --package-version')
         
-        case ActionsList.REMOVE:
+        case ActionsList.remove.value:
             Actions.update_packages()
             if args.package_name and args.package_version:
                 if is_downloaded_package(args.package_name, args.package_version, config):
