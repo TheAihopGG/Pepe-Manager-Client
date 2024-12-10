@@ -1,15 +1,7 @@
 import json
 from services.config import TypedConfig
-from typing import TypedDict
+from services.typed_dicts import TypedPackage
 from os.path import exists
-
-class TypedPackage(TypedDict):
-    id: int
-    name: str
-    author: str
-    version: str
-    url: str
-
 
 def is_package(
     package_dir: str,

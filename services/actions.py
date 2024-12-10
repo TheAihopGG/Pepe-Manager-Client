@@ -7,7 +7,8 @@ from urllib.parse import urlparse
 from logging import *
 from data.settings import *
 from services.config import *
-from services.package import TypedPackage, is_package
+from services.typed_dicts import TypedPackage
+from services.package import is_package
 
 config = load_config()
 

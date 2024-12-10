@@ -1,5 +1,6 @@
 import json
-from typing import TypedDict, Any
+from services.typed_dicts import TypedConfig
+from typing import Any
 from os.path import exists
 from data.settings import CONFIG_PATH
 
@@ -7,17 +8,6 @@ DEFAULT_CONFIG = {
     "packages_dir_path":None,
     "packages":[]
 }
-
-class TypedPackage(TypedDict): # 
-    id: int
-    name: str
-    author: str
-    version: str
-    url: str
-
-class TypedConfig(TypedDict):
-    packages_dir_path: str
-    packages: list[TypedPackage]
 
 
 def init_config(config_path: str = CONFIG_PATH):
