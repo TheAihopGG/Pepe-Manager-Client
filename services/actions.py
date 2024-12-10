@@ -49,7 +49,6 @@ class Actions:
     
     @staticmethod
     def download(
-        *,
         package_config: TypedPackage,
         package_extension: str = '.tar.gz',
         packages_dir_path = config['packages_dir_path'],
@@ -57,7 +56,7 @@ class Actions:
         """Downloads package from package_url in config['packages_dir_path']"""
         package_dir_name = f'{package_config['name']}{package_config['version']}'
 
-        rich.print(f'Downloading package: {package_config['name']}{package_config['version']} by @{package_config['author']}')
+        rich.print(f'Downloading package: {package_config['name']}-{package_config['version']} by @{package_config['author']}')
         rich.print(f'Requesting to {urlparse(package_config['url']).hostname}')
         # download package
         try:
@@ -78,7 +77,7 @@ class Actions:
                         packed_package_file = tarfile.open(f'{packages_dir_path}/{package_dir_name}{package_extension}', mode='r:gz')
                         packed_package_file.extractall(packages_dir_path)
                         os.remove(f'{packages_dir_path}/{package_config['name']}{package_config['version']}.tar.gz')
-                        rich.print(f'Successfully downloaded {package_config['name']}{package_config['version']}')
+                        rich.print(f'Successfully downloaded {package_config['name']}-{package_config['version']}')
                         # add package to config
                         edit_config('packages', config['packages']+[package_config])
                     case _:
@@ -87,22 +86,22 @@ class Actions:
                 rich.print(response.text)
 
     @staticmethod
-    def remove(package_name: str, package_version: str):
+    def remove(package_config: TypedPackage):
         """Removes package in config['packages_dir_path']"""
         # remove package
-        rich.print(f'Removing: {package_name}{package_version}')
+        rich.print(f'Removing: {package_config['name']}-{package_config['version']}')
         for package_dir in os.listdir(config['packages_dir_path']):
-            package_config: TypedPackage = is_package(package_dir, config)
-            if package_config['name'] == package_name and package_config['version'] == package_version:
+            package: TypedPackage = is_package(package_dir, config)
+            if package['id'] == package_config['id']:
                 shutil.rmtree(f'{config['packages_dir_path']}/{package_dir}')
         # remove package from config
         for [index, package] in enumerate(config['packages']):
-            if package['name'] == package_name and package['version'] == package_version:
+            if package['id'] == package_config['id']:
                 del config['packages'][index]
                 break
-        edit_config('packages', [None if package['name'] == package_name and package['version'] else package for package in config['packages']])
+        edit_config('packages', config['packages'])
         
-        rich.print(f'Successfully removed {package_name}-{package_version}')
+        rich.print(f'Successfully removed {package_config['name']}-{package_config['version']}')
     
     @staticmethod
     def set(option: str, value: str):
@@ -110,10 +109,11 @@ class Actions:
         edit_config(option, value)
     
     @staticmethod
-    def show(package_name: str, package_version: str):
+    def show(package_config: TypedPackage):
         """Shows package info"""
         for package in config['packages']:
-            if package['name'] == package_name and package['version'] == package_version:
+            if package_config['id'] == package['id']:
+                rich.print('Package config')
                 for [key, value] in package.items():
                     rich.print(f'{key}: {value}')
                 break

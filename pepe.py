@@ -7,7 +7,7 @@ from argparse import ArgumentParser, Namespace
 from data.settings import *
 from services.config import *
 from services.actions import ActionsList, Actions
-from services.package import TypedPackage, is_downloaded_package
+from services.package import TypedPackage, is_downloaded_package, get_package_config_by_name_version
 
 config = load_config() # config contains such user vars are like packages, packages_dir_path 
 
@@ -37,8 +37,7 @@ def execute_args(args: ProgramArgs):
             if args.package_name and args.package_version:
                 response = requests.post(f'{API_URL}api/package/?name={args.package_name}&version={args.package_version}')
                 if response.ok:
-                    package_config: dict[TypedPackage] = json.loads(response.content.decode())['package']
-                    Actions.download(package_config=package_config)
+                    Actions.download(json.loads(response.content.decode())['package'])
                 else:
                     rich.print(response.content['detail'])
             elif not args.package_name:
@@ -50,7 +49,7 @@ def execute_args(args: ProgramArgs):
             Actions.update_packages()
             if args.package_name and args.package_version:
                 if is_downloaded_package(args.package_name, args.package_version, config):
-                    Actions.remove(args.package_name, args.package_version)
+                    Actions.remove(get_package_config_by_name_version(args.package_name, args.package_version, config))
                 else:
                     rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
             elif not args.package_name:
@@ -72,12 +71,12 @@ def execute_args(args: ProgramArgs):
         case ActionsList.show.value:
             if args.package_name and args.package_version:
                 if is_downloaded_package(args.package_name, args.package_version, config):
-                    Actions.show(args.package_name, args.package_version)
+                    Actions.show(get_package_config_by_name_version(args.package_name, args.package_version, config))
                 else:
                     rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
-            elif not args.option:
+            elif not args.package_name:
                 rich.print('--package-name is required')
-            elif not args.value:
+            elif not args.package_version:
                 rich.print('--package-version is required')
 
 def parse_args() -> ProgramArgs:

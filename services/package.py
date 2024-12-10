@@ -25,3 +25,13 @@ def is_downloaded_package(
     config: TypedConfig
 ) -> bool:
     return (package_name in (package_config['name'] if package_config else None for package_config in config['packages']) and package_version in (package_config['version'] for package_config in config['packages'])) if config['packages'] else False
+
+
+def get_package_config_by_name_version(
+    package_name: str,
+    package_version: str,
+    config: TypedConfig
+) -> TypedPackage:
+    for package_config in config['packages']:
+        if package_config['name'] == package_name and package_config['version'] == package_version:
+            return package_config
