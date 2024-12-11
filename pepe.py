@@ -134,7 +134,7 @@ def execute_args(args: ProgramArgs):
                     Actions.show(package)
 
                 else:
-                    rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
+                    rich.print('Package not found')
             
             elif args.package_id and exists(config['packages_dir_path']):
                 package = get_package(lambda p: str(p['id']) == args.package_id, config['packages']) 
@@ -143,14 +143,15 @@ def execute_args(args: ProgramArgs):
                     Actions.show(package)
 
                 else:
-                    rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
+                    rich.print('Package not found')
             
             elif args.package_name and exists(config['packages_dir_path']):
-                if package := get_package_config_by_name(args.package_name, config['packages']):
-                    Actions.show(package)
+                if packages := get_packages(lambda p: p['name'] == args.package_name):
+                    for package in packages:
+                        Actions.show(package)
                     
                 else:
-                    rich.print(f'Package not found: name: {args.package_name}')
+                    rich.print('Package not found')
                 
             elif not exists(config['packages_dir_path']):
                 rich.print(f'Option `packages_dir_path`: path does not exists')
