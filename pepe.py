@@ -36,18 +36,29 @@ def execute_args(args: ProgramArgs):
             Actions.update_packages()
 
         case ActionsList.download.value:
-            if args.package_name and args.package_version or args.package_id:
-                if args.package_name and args.package_version:
-                    response: TypedAPIResponse = requests.post(f'{API_URL}api/package/?name={args.package_name}&version={args.package_version}')
+            if args.package_name and args.package_version:
+                if not get_package_config_by_name_version(args.package_name, args.package_version, config['packages']):
+                    response: TypedAPIResponse = requests.get(f'{API_URL}api/package/?name={args.package_name}&version={args.package_version}')
+                    if response.ok:
+                        Actions.download(json.loads(response.content.decode())['package'])
                 
-                elif args.package_id:
-                    response: TypedAPIResponse = requests.post(f'{API_URL}api/package_by_field/?field=id&value={args.package_id}')
+                    else:
+                        rich.print(f'Package not found')
+                        
+                else:
+                    rich.print(f'Package is downloaded')
+            
+            elif args.package_id:
+                if not get_package(lambda p: str(p['id']) == args.package_id, config['packages']):
+                    response: TypedAPIResponse = requests.get(f'{API_URL}api/package_by_field/?field=id&value={args.package_id}')
+                    if response.ok:
+                        Actions.download(json.loads(response.content.decode())['package'])
                 
-                if response.ok:
-                    Actions.download(json.loads(response.content.decode())['package'])
+                    else:
+                        rich.print(f'Package not found')
                 
                 else:
-                    rich.print(f'Package not found')
+                    rich.print(f'Package is downloaded')
 
             elif not args.package_name:
                 rich.print('--package-name is required')
