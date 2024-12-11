@@ -3,16 +3,15 @@ import shutil
 import os
 import rich
 import requests
-from enum import Enum
-from urllib.parse import urlparse
 from logging import *
 from data.settings import *
 from services.config import *
 from services.typed_dicts import TypedPackage
 from services.package import is_package
+from enum import Enum
+from urllib.parse import urlparse
 
 __doc__ = """Contains actions' tools and vars"""
-
 config = load_config()
 
 class ActionsList(Enum):
@@ -34,13 +33,19 @@ class Actions:
         if packages := config['packages']:
             for package in packages:
                 rich.print(f'{package['name']}-{package['version']}')
+
         else:
             rich.print('There is no downloaded packages')
 
     @staticmethod
     def update_packages():
         """Updates config['packages']"""
-        edit_config('packages', [is_package(package_dir, config['packages_dir_path']) for package_dir in os.listdir(config['packages_dir_path'])])
+        packages: list[TypedPackage] = []
+        for package_dir in os.listdir(config['packages_dir_path']):
+            if package := is_package(package_dir):
+                packages.append(package)
+
+        edit_config('packages', packages)
         rich.print('Packages have updated')
     
     @staticmethod
@@ -57,10 +62,13 @@ class Actions:
         # download package
         try:
             response = requests.get(package_config['url'])
+
         except requests.RequestException as error:
             rich.print(error)
+
         except requests.exceptions.ConnectionError:
             rich.print('Pepe Manager API is offline now')
+
         else:
             if response.ok:
                 with open(f'{packages_dir_path}/{package_dir_name}{package_extension}', 'wb') as packed_package_file:
@@ -76,8 +84,10 @@ class Actions:
                         rich.print(f'Successfully downloaded {package_config['name']}-{package_config['version']}')
                         # add package to config
                         edit_config('packages', config['packages']+[package_config])
+                    
                     case _:
                         rich.print(f'Unsupported package file extension: {package_extension}')
+
             else:
                 rich.print(response.text)
 
@@ -90,13 +100,14 @@ class Actions:
             if package_config := is_package(package_dir, config['packages_dir_path']):
                 if package_config['id'] == remove_package_config['id']:
                     shutil.rmtree(f'{config['packages_dir_path']}/{package_dir}')
+
         # remove package from config
         for [index, package_config] in enumerate(config['packages']):
             if package_config['id'] == remove_package_config['id']:
                 del config['packages'][index]
                 break
+
         edit_config('packages', config['packages'])
-        
         rich.print(f'Successfully removed {remove_package_config['name']}-{remove_package_config['version']}')
     
     @staticmethod
