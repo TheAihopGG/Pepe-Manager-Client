@@ -2,6 +2,7 @@
 import requests
 import json
 import rich
+from os.path import exists
 from sys import argv
 from argparse import ArgumentParser, Namespace
 from data.settings import *
@@ -29,14 +30,19 @@ def execute_args(args: ProgramArgs):
     action = args.action
     match action.lower():
         case ActionsList.list.value:
-            Actions.update_packages()
-            Actions.list()
+            if exists(config['packages_dir_path']):
+                Actions.update_packages()
+                Actions.list()
+
+            else:
+                rich.print(f'Option `packages_dir_path`: path does not exists')
 
         case ActionsList.update_packages.value:
             Actions.update_packages()
 
         case ActionsList.download.value:
-            if args.package_name and args.package_version:
+            if args.package_name and args.package_version and exists(config['packages_dir_path']):
+                Actions.update_packages()
                 if not get_package_config_by_name_version(args.package_name, args.package_version, config['packages']):
                     response: TypedAPIResponse = requests.get(f'{API_URL}api/package/?name={args.package_name}&version={args.package_version}')
                     if response.ok:
@@ -48,8 +54,9 @@ def execute_args(args: ProgramArgs):
                 else:
                     rich.print(f'Package is downloaded')
             
-            elif args.package_id:
-                if not get_package(lambda p: str(p['id']) == args.package_id, config['packages']):
+            elif args.package_id and exists(config['packages_dir_path']):
+                Actions.update_packages()
+                if not get_package(lambda p: str(p['id']) == args.package_id, config['packages']) and exists(config['packages_dir_path']):
                     response: TypedAPIResponse = requests.get(f'{API_URL}api/package_by_field/?field=id&value={args.package_id}')
                     if response.ok:
                         Actions.download(json.loads(response.content.decode())['package'])
@@ -59,6 +66,9 @@ def execute_args(args: ProgramArgs):
                 
                 else:
                     rich.print(f'Package is downloaded')
+            
+            elif not exists(config['packages_dir_path']):
+                rich.print(f'Option `packages_dir_path`: path does not exists')
 
             elif not args.package_name:
                 rich.print('--package-name is required')
@@ -67,13 +77,19 @@ def execute_args(args: ProgramArgs):
                 rich.print('--package-version is required')
         
         case ActionsList.remove.value:
-            Actions.update_packages()
-            if args.package_name and args.package_version or args.package_id:
-                if args.package_name and args.package_version:
-                    package = get_package_config_by_name_version(args.package_name, args.package_version, config['packages'])
+            if args.package_name and args.package_version and exists(config['packages_dir_path']):
+                Actions.update_packages()
+                package = get_package_config_by_name_version(args.package_name, args.package_version, config['packages'])
                 
-                elif args.package_id:
-                    package = get_package(lambda p: str(p['id']) == args.package_id, config['packages'])
+                if package:
+                    Actions.remove(package)
+
+                else:
+                    rich.print(f'Package not found')
+            
+            elif args.package_id and exists(config['packages_dir_path']):
+                Actions.update_packages()
+                package = get_package(lambda p: str(p['id']) == args.package_id, config['packages'])
                 
                 if package:
                     Actions.remove(package)
@@ -81,16 +97,20 @@ def execute_args(args: ProgramArgs):
                 else:
                     rich.print(f'Package not found')
 
-            elif not args.package_name:
-                rich.print('--package-name is required')
-
-            elif not args.package_version:
+            elif args.package_name and exists(config['packages_dir_path']):
+                Actions.update_packages()
                 if packages_configs := get_packages(lambda package: package['name'] == args.package_name, config['packages']):
                     for package in packages_configs:
                         Actions.remove(package)
 
                 else:
                     rich.print(f'Packages not found: name: {args.package_name}')
+            
+            elif not exists(config['packages_dir_path']):
+                rich.print(f'Option `packages_dir_path`: path does not exists')
+            
+            elif not args.package_name:
+                rich.print('--package-name is required')
         
         case ActionsList.set.value:
             if args.option and args.value:
@@ -107,12 +127,8 @@ def execute_args(args: ProgramArgs):
                 rich.print('--value is required')
         
         case ActionsList.show.value:
-            if args.package_name and args.package_version or args.package_id:
-                if args.package_name and args.package_version:
-                    package = get_package_config_by_name_version(args.package_name, args.package_version, config['packages']) 
-                
-                else:
-                    package = get_package(lambda p: str(p['id']) == args.package_id, config['packages']) 
+            if args.package_name and args.package_version and exists(config['packages_dir_path']):
+                package = get_package_config_by_name_version(args.package_name, args.package_version, config['packages']) 
                 
                 if package:
                     Actions.show(package)
@@ -120,15 +136,28 @@ def execute_args(args: ProgramArgs):
                 else:
                     rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
             
-            elif not args.package_name:
-                rich.print('--package-name is required')
+            elif args.package_id and exists(config['packages_dir_path']):
+                package = get_package(lambda p: str(p['id']) == args.package_id, config['packages']) 
 
-            elif not args.package_version:
+                if package:
+                    Actions.show(package)
+
+                else:
+                    rich.print(f'Package not found: name: {args.package_name}, version: {args.package_version}')
+            
+            elif args.package_name and exists(config['packages_dir_path']):
                 if package := get_package_config_by_name(args.package_name, config['packages']):
                     Actions.show(package)
                     
                 else:
                     rich.print(f'Package not found: name: {args.package_name}')
+                
+            elif not exists(config['packages_dir_path']):
+                rich.print(f'Option `packages_dir_path`: path does not exists')
+
+            elif not args.package_name:
+                rich.print('--package-name is required')
+
 
 def parse_args() -> ProgramArgs:
     """Parse args with using argparse and return TypedProgramArgs"""
