@@ -1,14 +1,18 @@
 # Pepe manager client
 
-Pepe manager is like an apt, pacman. You can download packages, remove packages, ect. This project was created to practice python and requests. The program use [pepe manager api](https://github.com/TheAihopGG/pepe_manager_api) to work.
+Pepe manager is a program for working with packages. You can download packages, remove packages, ect. This project has created to practice python and requests. The program uses [pepe manager API](https://github.com/TheAihopGG/pepe_manager_api) to work.
 
 # Setup
 
-## Linux
+## 🐧 Linux
 
 (soon)
 
-## Windows
+## 🪟 Windows
+
+(soon)
+
+# Commands
 
 (soon)
 
@@ -18,4 +22,6 @@ Pepe manager is like an apt, pacman. You can download packages, remove packages,
 
 # Credits
 
-- [theaihopgg](https://github.com/TheAihopGG) - the realization
+- [@TheAihopGG](https://github.com/TheAihopGG) - the realization
+
+Also see a list of [contributors](https://github.com/TheAihopGG/pepe_manager_client/graphs/contributors)
