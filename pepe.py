@@ -6,6 +6,7 @@ from os.path import exists
 from sys import argv
 from argparse import ArgumentParser, Namespace
 from data.settings import *
+from services.api import get_package_from_api
 from services.config import *
 from services.actions import ActionsList, Actions
 from services.typed_dicts import TypedAPIResponse
@@ -44,9 +45,8 @@ def execute_args(args: ProgramArgs):
             if args.package_name and args.package_version and exists(config['packages_dir_path']):
                 Actions.update_packages()
                 if not get_package_config_by_name_version(args.package_name, args.package_version, config['packages']):
-                    response: TypedAPIResponse = requests.get(f'{API_URL}api/package/?name={args.package_name}&version={args.package_version}')
-                    if response.ok:
-                        Actions.download(json.loads(response.content.decode())['package'])
+                    if package := get_package_from_api(name=args.package_name, version=args.package_version):
+                        Actions.download(package)
                 
                     else:
                         rich.print(f'Package not found')
@@ -57,9 +57,8 @@ def execute_args(args: ProgramArgs):
             elif args.package_id and exists(config['packages_dir_path']):
                 Actions.update_packages()
                 if not get_package(lambda p: str(p['id']) == args.package_id, config['packages']) and exists(config['packages_dir_path']):
-                    response: TypedAPIResponse = requests.get(f'{API_URL}api/package_by_field/?field=id&value={args.package_id}')
-                    if response.ok:
-                        Actions.download(json.loads(response.content.decode())['package'])
+                    if package := get_package_from_api(id=args.package_id):
+                        Actions.download(package)
                 
                     else:
                         rich.print(f'Package not found')
