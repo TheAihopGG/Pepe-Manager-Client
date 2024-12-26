@@ -12,9 +12,10 @@ Pepe manager is like an apt, pacman. You can download packages, remove packages,
 
 (soon)
 
-## Technologies
+## Technologies & Frameworks
 
 - [Python 3.12](https://www.python.org/)
+- [FastAPI](https://fastapi.tiangolo.com/)
 
 ## Credits
 
